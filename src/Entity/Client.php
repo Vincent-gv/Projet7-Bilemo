@@ -33,7 +33,7 @@ class Client
     private $password;
 
     /**
-     * @ORM\OneToOne(targetEntity=user::class, inversedBy="client", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=User::class, inversedBy="client", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $users;
@@ -79,12 +79,12 @@ class Client
         return $this;
     }
 
-    public function getUsers(): ?user
+    public function getUsers(): ?User
     {
         return $this->users;
     }
 
-    public function setUsers(user $users): self
+    public function setUsers(User $users): self
     {
         $this->users = $users;
 
