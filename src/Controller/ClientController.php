@@ -1,29 +1,30 @@
 <?php
 
+
 namespace App\Controller;
 
 
 use App\Entity\Product;
-use App\Repository\ProductRepository;
+use App\Repository\ClientRepository;
+use FOS\RestBundle\Controller\Annotations\Route;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use FOS\RestBundle\Controller\Annotations\Route;
 
-class ProductController extends AbstractController
+class ClientController extends AbstractController
 {
     /**
-     * @Route("/product/{id}", name="product_show", methods={"GET"})
-     * @param ProductRepository $productRepository
+     * @Route("/client/{id}", name="client_show", methods={"GET"})
+     * @param ClientRepository $clientRepository
      * @param SerializerInterface $serializer
      * @param string $id
      * @return Response
      */
-    public function showAction(ProductRepository $productRepository, SerializerInterface $serializer, string $id): Response
+    public function showAction(ClientRepository $clientRepository, SerializerInterface $serializer, string $id): Response
     {
-        $product = $productRepository->findBy(['id' => $id]);
-        $data = $serializer->serialize($product, 'json');
+        $client = $clientRepository->findBy(['id' => $id]);
+        $data = $serializer->serialize($client, 'json');
 
         $response = new Response($data);
         $response->headers->set('Content-Type', 'application/json');
@@ -31,33 +32,33 @@ class ProductController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route("/product-post/", name="product_create", methods={"POST"})
+     /**
+     * @Route("/client-post/", name="client_create", methods={"POST"})
      * @param Request $request
      * @param SerializerInterface $serializer
      * @return Response
      */
     public function createAction(Request $request, SerializerInterface $serializer)
     {
-        $product = $serializer->deserialize($request->getContent(), Product::class, 'json');
+        $client = $serializer->deserialize($request->getContent(), Product::class, 'json');
 
         $em = $this->getDoctrine()->getManager();
-        $em->persist($product);
+        $em->persist($client);
         $em->flush();
 
         return new Response('', Response::HTTP_CREATED);
     }
 
     /**
-     * @Route("/product/", name="product_list")
-     * @param ProductRepository $productRepository
+     * @Route("/client/", name="clients_list")
+     * @param ClientRepository $clientRepository
      * @param SerializerInterface $serializer
      * @return Response
      */
-    public function listAction(ProductRepository $productRepository, SerializerInterface $serializer)
+    public function ListAction(ClientRepository $clientRepository, SerializerInterface $serializer)
     {
-        $product = $productRepository->findAll();
-        $data = $serializer->serialize($product, 'json');
+        $client = $clientRepository->findAll();
+        $data = $serializer->serialize($client, 'json');
 
         $response = new Response($data);
         $response->headers->set('Content-Type', 'application/json');
