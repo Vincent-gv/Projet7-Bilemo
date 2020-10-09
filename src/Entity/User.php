@@ -39,7 +39,7 @@ class User
     private $password;
 
     /**
-     * @ORM\OneToOne(targetEntity=Client::class, mappedBy="users", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity=Client::class, mappedBy="users", cascade={"persist", "remove"})
      */
     private $client;
 

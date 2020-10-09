@@ -34,7 +34,7 @@ class Client
     private $password;
 
     /**
-     * @ORM\OneToOne(targetEntity=User::class, inversedBy="client", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity=User::class, inversedBy="client", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=false)
      */
     private $users;
