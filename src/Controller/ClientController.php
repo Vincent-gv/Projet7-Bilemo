@@ -4,17 +4,33 @@
 namespace App\Controller;
 
 
-use App\Entity\Product;
+use App\Entity\Client;
 use App\Repository\ClientRepository;
-use FOS\RestBundle\Controller\Annotations\Route;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Swagger\Annotations as SWG;
+use Symfony\Component\Routing\Annotation\Route;
 
 class ClientController extends AbstractController
 {
     /**
+     * @SWG\Tag(name="Client")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Returns the informations of a client",
+     *     @SWG\Schema(
+     *         type="array",
+     *         example={"username": "John Doe","email": "my@email.com", "password": "MyPassword"},
+     *         @SWG\Items(ref=@Model(type=Client::class, groups={"full"}))
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Returned when ressource is not found"
+     * )
      * @Route("/client/{id}", name="client_show", methods={"GET"})
      * @param ClientRepository $clientRepository
      * @param SerializerInterface $serializer
@@ -40,7 +56,7 @@ class ClientController extends AbstractController
      */
     public function createAction(Request $request, SerializerInterface $serializer)
     {
-        $client = $serializer->deserialize($request->getContent(), Product::class, 'json');
+        $client = $serializer->deserialize($request->getContent(), Client::class, 'json');
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($client);
