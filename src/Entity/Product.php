@@ -4,43 +4,83 @@ namespace App\Entity;
 
 use App\Repository\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)
+ * @ORM\Table(name="product")
  */
 class Product
 {
     /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"list", "show"})
      */
     private $id;
 
+
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"list", "show"})
+     * @Assert\NotBlank()
+     * @Assert\Length(min="2", max="255")
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="integer")
+     * @Groups({"list", "show"})
+     * @Assert\NotBlank()
+     * @Assert\Range(min="0")
+     */
+    private $price;
+
+    /**
+     * @ORM\Column(type="text")
+     * @Groups({"show"})
      */
     private $description;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @Groups({"list"})
      */
-    private $brand;
+    private $routeList;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @Groups({"show"})
      */
-    private $color;
+    private $routeShow;
 
     /**
-     * @ORM\Column(type="float")
+     * @return mixed
      */
-    private $price;
+    public function getRouteList()
+    {
+        return [
+            'Links' => [
+                'Go to details (GET)' => [
+                    'href' => '/api/phone/' . $this->id
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRouteShow()
+    {
+        return [
+            'Links' => [
+                'Return to list (GET)' => [
+                    'href' => '/api/phones'
+                ]
+            ]
+        ];
+    }
 
     public function getId(): ?int
     {
@@ -59,50 +99,26 @@ class Product
         return $this;
     }
 
+    public function getPrice(): ?int
+    {
+        return $this->price;
+    }
+
+    public function setPrice(int $price): self
+    {
+        $this->price = $price;
+
+        return $this;
+    }
+
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getBrand(): ?string
-    {
-        return $this->brand;
-    }
-
-    public function setBrand(string $brand): self
-    {
-        $this->brand = $brand;
-
-        return $this;
-    }
-
-    public function getColor(): ?string
-    {
-        return $this->color;
-    }
-
-    public function setColor(string $color): self
-    {
-        $this->color = $color;
-
-        return $this;
-    }
-
-    public function getPrice(): ?float
-    {
-        return $this->price;
-    }
-
-    public function setPrice(float $price): self
-    {
-        $this->price = $price;
 
         return $this;
     }
