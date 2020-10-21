@@ -17,13 +17,13 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ProductController extends AbstractController
 {
     /**
-     * @SWG\Tag(name="Products")
+     * @SWG\Tag(name="Product")
      * @SWG\Response(
      *     response=200,
      *     description="Returns the informations of a product",
      *     @SWG\Schema(
      *         type="array",
-     *         example={"name": "new phone","description": "phone description", "price": "800"},
+     *         example={"name": "name", "price": "price","description": "description"},
      *         @SWG\Items(ref=@Model(type=Product::class, groups={"full"}))
      *     )
      * )
@@ -49,13 +49,13 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @SWG\Tag(name="Products")
+     * @SWG\Tag(name="Product")
      * @SWG\Response(
      *     response=200,
      *     description="Post a new phone",
      *     @SWG\Schema(
      *         type="array",
-     *         example={"name": "new phone","description": "phone description", "price": "800"},
+     *         example={"name": "name", "price": "price","description": "description"},
      *         @SWG\Items(ref=@Model(type=Product::class, groups={"full"}))
      *     )
      * )
@@ -88,7 +88,7 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @SWG\Tag(name="Products")
+     * @SWG\Tag(name="Product")
      * * @SWG\Response(
      *     response=200,
      *     description="Returns the list of phones",
