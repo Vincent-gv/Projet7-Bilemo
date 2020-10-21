@@ -23,7 +23,7 @@ class ClientController extends AbstractController
      *     description="Returns the informations of a client",
      *     @SWG\Schema(
      *         type="array",
-     *         example={"username": "John Doe","email": "my@email.com", "password": "MyPassword"},
+     *         example={"first name": "first name","lastname": "lastname","email": "email", "password": "password", "user": "[]"},
      *         @SWG\Items(ref=@Model(type=Client::class, groups={"full"}))
      *     )
      * )
@@ -48,7 +48,21 @@ class ClientController extends AbstractController
         return $response;
     }
 
-     /**
+    /**
+     * @SWG\Tag(name="Client")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Post a new client",
+     *     @SWG\Schema(
+     *         type="array",
+     *         example={"first name": "first name","lastname": "lastname","email": "email", "password": "password"},
+     *         @SWG\Items(ref=@Model(type=Client::class, groups={"full"}))
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Returned when ressource is not found"
+     * )
      * @Route("/client-post/", name="client_create", methods={"POST"})
      * @param Request $request
      * @param SerializerInterface $serializer
@@ -66,6 +80,19 @@ class ClientController extends AbstractController
     }
 
     /**
+     * @SWG\Tag(name="Client")
+     * * @SWG\Response(
+     *     response=200,
+     *     description="Returns the list of clients",
+     *     @SWG\Schema(
+     *         type="array",
+     *         @SWG\Items(ref=@Model(type=Client::class, groups={"full"}))
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Returned when ressource is not found"
+     * )
      * @Route("/client/", name="clients_list")
      * @param ClientRepository $clientRepository
      * @param SerializerInterface $serializer
