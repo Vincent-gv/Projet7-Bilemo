@@ -58,19 +58,6 @@ class User implements UserInterface
      */
     private $clients;
 
-    /**
-     * @Groups({"list"})
-     */
-    private $routeList;
-
-    /**
-     * @Groups({"show"})
-     */
-    private $routeShow;
-    /**
-     * @var array
-     */
-
     private $roles;
 
     /**

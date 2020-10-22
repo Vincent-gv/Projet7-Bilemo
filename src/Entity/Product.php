@@ -45,16 +45,6 @@ class Product
     private $description;
 
     /**
-     * @Groups({"list"})
-     */
-    private $routeList;
-
-    /**
-     * @Groups({"show"})
-     */
-    private $routeShow;
-
-    /**
      * @return mixed
      */
     public function getRouteList()
