@@ -45,16 +45,6 @@ class Client
     private $user;
 
     /**
-     * @Groups({"list"})
-     */
-    private $routeList;
-
-    /**
-     * @Groups({"show"})
-     */
-    private $routeShow;
-
-    /**
      * @return mixed
      */
     public function getRouteList()
@@ -62,13 +52,13 @@ class Client
         return [
             'Links'=>[
                 'See client (GET)'=>[
-                    'href'=>'/api/client/' . $this->id
+                    'href'=>'/client/' . $this->id
                 ],
                 'Add client (POST)'=>[
-                    'href'=>'/api/client'
+                    'href'=>'/client'
                 ],
                 'Delete client (DEL)'=>[
-                    'href'=>'/api/client/' . $this->id
+                    'href'=>'/client/' . $this->id
                 ]
             ]
         ];
@@ -82,7 +72,7 @@ class Client
         return [
             'Links'=>[
                 'Return to list (GET)'=>[
-                    'href'=>'/api/clients'
+                    'href'=>'/clients'
                 ]
             ]
         ];
