@@ -5,11 +5,9 @@ namespace App\Entity;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)
- * @ORM\Table(name="product")
  */
 class Product
 {
@@ -17,6 +15,7 @@ class Product
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     *
      * @Groups({"list", "show"})
      */
     private $id;
@@ -24,53 +23,24 @@ class Product
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"list", "show"})
-     * @Assert\NotBlank()
-     * @Assert\Length(min="2", max="255")
+     *
+     * @Groups({"list", "show"})     *
      */
     private $name;
 
     /**
      * @ORM\Column(type="integer")
+     *
      * @Groups({"list", "show"})
-     * @Assert\NotBlank()
-     * @Assert\Range(min="0")
      */
     private $price;
 
     /**
      * @ORM\Column(type="text")
+     *
      * @Groups({"show"})
      */
     private $description;
-
-    /**
-     * @return mixed
-     */
-    public function getRouteList()
-    {
-        return [
-            'Links' => [
-                'Go to details (GET)' => [
-                    'href' => '/api/phone/' . $this->id
-                ]
-            ]
-        ];
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getRouteShow()
-    {
-        return [
-            'Links' => [
-                'Return to list (GET)' => [
-                    'href' => '/api/phones'
-                ]
-            ]
-        ];
-    }
 
     public function getId(): ?int
     {

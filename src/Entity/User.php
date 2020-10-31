@@ -9,11 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ORM\Table(name="user")
  * @UniqueEntity(fields={"username"}, message="This user already exists")
  */
 class User implements UserInterface
@@ -22,21 +20,14 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     *
      * @Groups({"list", "show"})
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"list", "show"})
-     * @Assert\NotBlank()
-     * @Assert\Length(min="2", max="255")
-     */
-    private $username;
-
-
-    /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
+     *
      * @Groups({"show"})
      */
     private $email;
@@ -105,14 +96,8 @@ class User implements UserInterface
      */
     public function getUsername(): string
     {
-        return (string) $this->username;
-    }
+        return (string) $this->email;
 
-    public function setUsername(string $username): self
-    {
-        $this->username = $username;
-
-        return $this;
     }
 
     /**
@@ -159,7 +144,7 @@ class User implements UserInterface
 
     public function setEmail(string $email): self
     {
-        $this->username = $email;
+        $this->email = $email;
 
         return $this;
     }
