@@ -5,9 +5,11 @@ namespace App\Controller;
 
 
 use App\Entity\Client;
+use App\Form\ClientFormType;
 use App\Repository\ClientRepository;
-use JMS\Serializer\SerializerInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -16,6 +18,21 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ClientController extends AbstractController
 {
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+    /**
+     * @var ClientRepository
+     */
+    private $clientRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, ClientRepository $clientRepository)
+    {
+        $this->entityManager = $entityManager;
+        $this->clientRepository = $clientRepository;
+    }
+
     /**
      * @SWG\Tag(name="Client")
      * @SWG\Response(
@@ -33,19 +50,20 @@ class ClientController extends AbstractController
      * )
      * @Route("/client/{id}", name="client_show", methods={"GET"})
      * @param ClientRepository $clientRepository
-     * @param SerializerInterface $serializer
      * @param string $id
      * @return Response
      */
-    public function showAction(ClientRepository $clientRepository, SerializerInterface $serializer, string $id): Response
+    public function showAction(ClientRepository $clientRepository,string $id): Response
     {
         $client = $clientRepository->findBy(['id' => $id]);
-        $data = $serializer->serialize($client, 'json');
-
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
+        return $this->json(
+            $client,
+            200,
+            [],
+            [
+                'groups' => ['show']
+            ]
+        );
     }
 
     /**
@@ -63,20 +81,35 @@ class ClientController extends AbstractController
      *     response=404,
      *     description="Returned when ressource is not found"
      * )
-     * @Route("/client-post/", name="client_create", methods={"POST"})
+     * @Route("/client", name="client_create", methods={"POST"})
      * @param Request $request
-     * @param SerializerInterface $serializer
      * @return Response
      */
-    public function createAction(Request $request, SerializerInterface $serializer)
+    public function createAction(Request $request): Response
     {
-        $client = $serializer->deserialize($request->getContent(), Client::class, 'json');
+        $book = new Client();
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($client);
-        $em->flush();
+        $form = $this->createForm(ClientFormType::class, $book);
 
-        return new Response('', Response::HTTP_CREATED);
+        $requestData = json_decode($request->getContent(), true);
+
+        $form->submit($requestData);
+
+        if (!($form->isSubmitted() && $form->isValid())) {
+            return new JsonResponse([], 400);
+        }
+
+        persist($book);
+        $this->entityManager->flush();
+
+        return $this->json(
+            $book,
+            200,
+            [],
+            [
+                'groups' => ['show', 'list']
+            ]
+        );
     }
 
     /**
@@ -93,19 +126,89 @@ class ClientController extends AbstractController
      *     response=404,
      *     description="Returned when ressource is not found"
      * )
-     * @Route("/client/", name="clients_list")
-     * @param ClientRepository $clientRepository
-     * @param SerializerInterface $serializer
+     * @Route("/client", name="clients_list", methods={"GET"})
      * @return Response
      */
-    public function ListAction(ClientRepository $clientRepository, SerializerInterface $serializer)
+    public function listAction()
     {
-        $client = $clientRepository->findAll();
-        $data = $serializer->serialize($client, 'json');
+        return $this->json(
+            $this->clientRepository->findAll(),
+            200,
+            [],
+            [
+                'groups' => ['list']
+            ]
+        );
+    }
 
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
+    /**
+     * @SWG\Tag(name="Client")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Delete a client",
+     *     @SWG\Schema(
+     *         type="array",
+     *         example={"id": "id"},
+     *         @SWG\Items(ref=@Model(type=Client::class, groups={"full"}))
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Returned when ressource is not found"
+     * )
+     * @Route("/client/{id}", name="client_delete", methods={"DELETE"})
+     * @param Client $client
+     * @return Response
+     */
+    public function deleteAction(Client $client): Response
+    {
+        $this->entityManager->remove($client);
+        $this->entityManager->flush();
 
-        return $response;
+        return new JsonResponse();
+    }
+
+    /**
+     * @SWG\Tag(name="Client")
+     * @SWG\Response(
+     *     response=200,
+     *     description="Update a client",
+     *     @SWG\Schema(
+     *         type="array",
+     *         example={"first name": "first name","lastname": "lastname","email": "email", "password": "password"},
+     *         @SWG\Items(ref=@Model(type=Client::class, groups={"full"}))
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Returned when ressource is not found"
+     * )
+     * @Route("/client/{id}", name="client_update", methods={"PUT"})
+     * @param Request $request
+     * @param Client $client
+     * @return Response
+     */
+    public function updateAction(Request $request, Client $client): Response
+    {
+        $form = $this->createForm(ClientFormType::class, $client);
+
+        $requestData = json_decode($request->getContent(), true);
+
+        $form->submit($requestData);
+
+        if (!($form->isSubmitted() && $form->isValid())) {
+            return new JsonResponse([], 400);
+        }
+
+        $this->entityManager->flush();
+
+        return $this->json(
+            $client,
+            200,
+            [],
+            [
+                'groups' => ['show', 'list']
+            ]
+        );
     }
 }
