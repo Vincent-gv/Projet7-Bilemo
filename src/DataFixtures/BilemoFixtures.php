@@ -7,9 +7,20 @@ use App\Entity\Product;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class BilemoFixtures extends Fixture
 {
+    /**
+     * @var UserPasswordEncoderInterface
+     */
+    private $userPasswordEncoder;
+
+    public function __construct(UserPasswordEncoderInterface $userPasswordEncoder)
+    {
+        $this->userPasswordEncoder = $userPasswordEncoder;
+    }
+
     public function load( ObjectManager $manager)
     {
         $clients = [];
@@ -23,11 +34,13 @@ class BilemoFixtures extends Fixture
             $clients[] = $client;
         }
 
-        $hash = password_hash('123456', PASSWORD_BCRYPT);
         for ($i = 0; $i < 5; $i++) {
-            $user = (new User())
+            $user = (new User());
+            $user
                 ->setEmail('user' . ($i + 1) . '@user.com')
-                ->setPassword($hash)
+                ->setPassword(
+                    $this->userPasswordEncoder->encodePassword($user, 'azerty')
+                )
                 ->addClient($clients[$i % count($clients)]);
 
             $manager->persist($user);

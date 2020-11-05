@@ -6,19 +6,17 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
- * @UniqueEntity(fields={"username"}, message="This user already exists")
  */
 class User implements UserInterface
 {
     /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
+     * @ORM\Id
+     * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      *
      * @Groups({"list", "show"})
@@ -26,17 +24,18 @@ class User implements UserInterface
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255, unique=true)
+     * @ORM\Column(type="string", length=180, unique=true)
      *
      * @Groups({"show"})
      */
     private $email;
-//
-//    /**
-//     * @ORM\Column(type="json")
-//     * @Groups({"show"})
-//     */
-//    private $roles = [];
+
+    /**
+     * @ORM\Column(type="json")
+     *
+     * @Groups({"show"})
+     */
+    private $roles = [];
 
     /**
      * @var string The hashed password
@@ -49,36 +48,6 @@ class User implements UserInterface
      */
     private $clients;
 
-    private $roles;
-
-    /**
-     * @return mixed
-     */
-    public function getRouteList()
-    {
-        return [
-            'Links'=>[
-                'Go to details (GET)'=>[
-                    'href'=>'/api/user/' . $this->id
-                ]
-            ]
-        ];
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getRouteShow()
-    {
-        return [
-            'Links'=>[
-                'Return to list (GET)'=>[
-                    'href'=>'/api/users'
-                ]
-            ]
-        ];
-    }
-
     public function __construct()
     {
         $this->clients = new ArrayCollection();
@@ -89,6 +58,18 @@ class User implements UserInterface
         return $this->id;
     }
 
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
     /**
      * A visual identifier that represents this user.
      *
@@ -96,8 +77,7 @@ class User implements UserInterface
      */
     public function getUsername(): string
     {
-        return (string) $this->email;
-
+        return (string)$this->email;
     }
 
     /**
@@ -124,7 +104,7 @@ class User implements UserInterface
      */
     public function getPassword(): string
     {
-        return (string) $this->password;
+        return (string)$this->password;
     }
 
     public function setPassword(string $password): self
@@ -133,22 +113,6 @@ class User implements UserInterface
 
         return $this;
     }
-
-    /**
-     * @see UserInterface
-     */
-    public function getEmail(): string
-    {
-        return (string) $this->email;
-    }
-
-    public function setEmail(string $email): self
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
 
     /**
      * @see UserInterface
