@@ -45,7 +45,7 @@ php bin/console doctrine:database:create
 
 * The documentation is available at the root of the project with public access.
 
-* You can test online with credentials above: or https://bilemo.vincent-dev.com/
+* You can test online with credentials above: https://bilemo.vincent-dev.com/
 
 
 ## Developed with
