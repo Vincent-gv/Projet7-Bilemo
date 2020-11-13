@@ -6,9 +6,18 @@ namespace App\Entity;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Hateoas\Configuration\Annotation as Hateoas;
 
 /**
  * @ORM\Entity(repositoryClass=ClientRepository::class)
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *     href=@Hateoas\Route(
+ *          "client_show",
+ *          parameters={"id"= "expr(object.getId())"}
+ *     )
+ * )
  */
 class Client
 {

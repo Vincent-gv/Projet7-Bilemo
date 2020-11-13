@@ -8,7 +8,7 @@ use App\Entity\Client;
 use App\Form\ClientFormType;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +16,7 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Routing\Annotation\Route;
 
-class ClientController extends AbstractController
+class ClientController extends AController
 {
     /**
      * @var EntityManagerInterface
@@ -27,8 +27,9 @@ class ClientController extends AbstractController
      */
     private $clientRepository;
 
-    public function __construct(EntityManagerInterface $entityManager, ClientRepository $clientRepository)
+    public function __construct(SerializerInterface $serializer, EntityManagerInterface $entityManager, ClientRepository $clientRepository)
     {
+        parent::__construct($serializer);
         $this->entityManager = $entityManager;
         $this->clientRepository = $clientRepository;
     }
