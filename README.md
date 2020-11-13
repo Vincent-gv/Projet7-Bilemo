@@ -21,6 +21,8 @@ git clone https://github.com/Vincent-gv/bilemo.git
 `` composer install 
 ``  at the root of the folder to install the dependencies.
 * Create a local database and update environment variables in .env file.
+* Start your symfony local server with `` symfony server:start
+                                       ``  
 * Run Doctrine to load SQL tables: 
 `` 
 php bin/console doctrine:database:create
@@ -30,10 +32,26 @@ php bin/console doctrine:database:create
  php bin/console doctrine:fixtures:load
 `` 
 
+### Run application
+* Open Postman and get token at localhost/token    
+* With the POST method enter your logs in the body in json format:
+`` 
+{
+	"username": "user1@user.com",
+	"password": "azerty"
+}
+`` 
+* Get the JWT token and paste it in Authorization > Bearer Token to navigate in the API.
+
+* The documentation is available at the root of the project with public access.
+
+* You can test online with credentials above: or https://bilemo.vincent-dev.com/
+
+
 ## Developed with
 
 * ** Symfony 5.1 **
-* ** PHP 7.2.5 **
+* ** PHP 7.4.7 **
 * ** Mysql **
 * **Composer **
 
