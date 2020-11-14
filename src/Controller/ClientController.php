@@ -8,6 +8,9 @@ use App\Entity\Client;
 use App\Form\ClientFormType;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use Hateoas\Representation\CollectionRepresentation;
+use Hateoas\Representation\PaginatedRepresentation;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,6 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ClientController extends AController
 {
+    const LIMIT = 2;
     /**
      * @var EntityManagerInterface
      */
@@ -128,12 +132,32 @@ class ClientController extends AController
      *     description="Returned when ressource is not found"
      * )
      * @Route("/client", name="clients_list", methods={"GET"})
+     * @param Request $request
      * @return Response
+     * @throws Exception
      */
-    public function listAction()
+    public function listAction(Request $request)
     {
+        $page = $request->query->get('page', 1);
+        $limit = $request->query->get('limit', self::LIMIT);
+
+        $paginator = $this->clientRepository->findAllPaginated($page, self::LIMIT);
+
+        $paginatedCollection = new PaginatedRepresentation(
+            new CollectionRepresentation($paginator->getIterator()),
+            'clients_list',
+            array(),
+            $page,
+            $limit,
+            count($paginator)/self::LIMIT,
+            'page',
+            'limit',
+            false,
+            count($paginator)
+        );
+
         return $this->json(
-            $this->clientRepository->findAll(),
+            $paginatedCollection,
             200,
             [],
             [
