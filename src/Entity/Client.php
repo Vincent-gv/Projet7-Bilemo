@@ -18,6 +18,26 @@ use Hateoas\Configuration\Annotation as Hateoas;
  *          parameters={"id"= "expr(object.getId())"}
  *     )
  * )
+ * @Hateoas\Relation(
+ *     "client",
+ *     embedded = @Hateoas\Embedded         (
+ *         {"id"="18","First name"="John","Last name"="Doe","email"="john.doe@mail.com","_links":{"self":{"href": "/client/18"}}}
+ *     )
+ * )
+ * @Hateoas\Relation(
+ *     "delete",
+ *     href=@Hateoas\Route(
+ *          "client_delete",
+ *          parameters={"id"= "expr(object.getId())"}
+ *     )
+ * )
+ * @Hateoas\Relation(
+ *     "update",
+ *     href=@Hateoas\Route(
+ *          "client_update",
+ *          parameters={"id"= "expr(object.getId())"}
+ *     )
+ * )
  */
 class Client
 {

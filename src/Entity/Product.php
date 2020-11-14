@@ -17,6 +17,12 @@ use Hateoas\Configuration\Annotation as Hateoas;
  *          parameters={"id"= "expr(object.getId())"}
  *     )
  * )
+ * @Hateoas\Relation(
+ *     "product",
+ *     embedded = @Hateoas\Embedded         (
+ *         {"id"="12","name"="Mobile 12","price"="850","description"="A new generation of mobile.","_links":{"self":{"href": "/product/12"}}}
+ *     )
+ * )
  */
 class Product
 {
