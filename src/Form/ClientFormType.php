@@ -16,8 +16,7 @@ class ClientFormType extends AbstractType
         $builder
             ->add('first_name', TextType::class)
             ->add('last_name', TextareaType::class)
-            ->add('email', TextareaType::class)
-            ->add('user', TextareaType::class);
+            ->add('email', TextareaType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver)

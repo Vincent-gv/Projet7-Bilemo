@@ -29,6 +29,18 @@ class ClientRepository extends ServiceEntityRepository
             ->setMaxResults($limit);
 
         return new Paginator($q);
+    }
 
+    public function findPaginatedBy($criteria, $page, $limit)
+    {
+        $q = $this->createQueryBuilder('b')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
+        foreach ($criteria as $column=>$value) {
+            $q->andWhere('b.'.$column.' = :'.$column)
+            ->setParameter($column,$value);
+        }
+
+        return new Paginator($q);
     }
 }

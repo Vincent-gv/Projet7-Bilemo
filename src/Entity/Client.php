@@ -5,8 +5,9 @@ namespace App\Entity;
 
 use App\Repository\ClientRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Groups;
 use Hateoas\Configuration\Annotation as Hateoas;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ClientRepository::class)
@@ -46,33 +47,44 @@ class Client
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      *
-     * @Groups({"list", "show"})
+     * @Groups({"client_list", "client_show"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      *
-     * @Groups({"list", "show"})
+     * @Assert\NotNull()
+     * @Assert\NotBlank()
+     *
+     * @Groups({"client_list", "client_show"})
      */
     private $first_name;
 
     /**
      * @ORM\Column(type="string", length=255)
      *
-     * @Groups({"list", "show"})
+     * @Assert\NotNull()
+     * @Assert\NotBlank()
+     *
+     * @Groups({"client_list", "client_show"})
      */
     private $last_name;
 
     /**
      * @ORM\Column(type="string", length=255)
      *
-     * @Groups({"show"})
+     * @Assert\NotNull()
+     * @Assert\NotBlank()
+     *
+     * @Groups({"client_show"})
      */
     private $email;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="clients")
+     *
+     * @Groups({"client_user"})
      */
     private $user;
 

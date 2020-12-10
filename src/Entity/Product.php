@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Groups;
 use Hateoas\Configuration\Annotation as Hateoas;
 
 /**
@@ -31,7 +31,7 @@ class Product
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      *
-     * @Groups({"list", "show"})
+     * @Groups({"product_list", "product_show"})
      */
     private $id;
 
@@ -39,21 +39,21 @@ class Product
     /**
      * @ORM\Column(type="string", length=255)
      *
-     * @Groups({"list", "show"})     *
+     * @Groups({"product_list", "product_show"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="integer")
      *
-     * @Groups({"list", "show"})
+     * @Groups({"product_list", "product_show"})
      */
     private $price;
 
     /**
      * @ORM\Column(type="text")
      *
-     * @Groups({"show"})
+     * @Groups({"product_show"})
      */
     private $description;
 
