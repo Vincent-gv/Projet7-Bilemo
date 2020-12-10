@@ -6,7 +6,11 @@ namespace App\Controller;
 use App\Entity\Product;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use Hateoas\Representation\CollectionRepresentation;
+use Hateoas\Representation\PaginatedRepresentation;
 use JMS\Serializer\SerializerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
@@ -14,6 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ProductController extends AController
 {
+    const LIMIT = 10;
     /**
      * @var EntityManagerInterface
      */
@@ -43,7 +48,7 @@ class ProductController extends AController
      * )
      * @SWG\Response(
      *     response=404,
-     *     description="Returned when ressource is not found"
+     *     description="Ressource is not found"
      * )
      * @Route("/product/{id}", name="product_show", methods={"GET"})
      * @param ProductRepository $productRepository
@@ -53,12 +58,21 @@ class ProductController extends AController
     public function showAction(ProductRepository $productRepository, string $id): Response
     {
         $product = $productRepository->findBy(['id' => $id]);
+
+        if (!$product) {
+            return $this->json([
+                "status" => 404,
+                "message" => "No product found"
+            ],
+                404);
+        }
+
         return $this->json(
             $product,
             200,
             [],
             [
-                'groups' => ['show']
+                'groups' => ['product_show']
             ]
         );
     }
@@ -75,19 +89,39 @@ class ProductController extends AController
      * )
      * @SWG\Response(
      *     response=404,
-     *     description="Returned when ressource is not found"
+     *     description="Ressource is not found"
      * )
      * @Route("/product", name="product_list", methods={"GET"})
+     * @param Request $request
      * @return Response
+     * @throws Exception
      */
-    public function listAction()
+    public function listAction(Request $request)
     {
+        $page = $request->query->get('page', 1);
+        $limit = $request->query->get('limit', self::LIMIT);
+
+        $paginator = $this->productRepository->findAllPaginated($page, $limit);
+
+        $paginatedCollection = new PaginatedRepresentation(
+            new CollectionRepresentation($paginator->getIterator()),
+            'client_list',
+            array(),
+            $page,
+            $limit,
+            count($paginator) / self::LIMIT,
+            'page',
+            'limit',
+            false,
+            count($paginator)
+        );
+
         return $this->json(
-            $this->productRepository->findAll(),
+            $paginatedCollection,
             200,
             [],
             [
-                'groups' => ['list']
+                'groups' => ['product_list']
             ]
         );
     }

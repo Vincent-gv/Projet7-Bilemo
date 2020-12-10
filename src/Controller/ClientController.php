@@ -5,6 +5,8 @@ namespace App\Controller;
 
 
 use App\Entity\Client;
+use App\Exception\BadFormException;
+use App\Exception\BadJsonException;
 use App\Form\ClientFormType;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,10 +20,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class ClientController extends AController
 {
-    const LIMIT = 2;
+    const LIMIT = 5;
     /**
      * @var EntityManagerInterface
      */
@@ -51,22 +54,31 @@ class ClientController extends AController
      * )
      * @SWG\Response(
      *     response=404,
-     *     description="Returned when ressource is not found"
+     *     description="Ressource is not found"
      * )
      * @Route("/client/{id}", name="client_show", methods={"GET"})
      * @param ClientRepository $clientRepository
      * @param string $id
      * @return Response
      */
-    public function showAction(ClientRepository $clientRepository,string $id): Response
+    public function showAction(ClientRepository $clientRepository, string $id): Response
     {
-        $client = $clientRepository->findBy(['id' => $id]);
+        $client = $clientRepository->find($id);
+
+        if (!$client) {
+            return $this->json([
+                "status" => 404,
+                "message" => "No customer found"
+            ],
+                404);
+        }
+
         return $this->json(
             $client,
             200,
             [],
             [
-                'groups' => ['show']
+                'groups' => ['client_show']
             ]
         );
     }
@@ -74,7 +86,7 @@ class ClientController extends AController
     /**
      * @SWG\Tag(name="Client")
      * @SWG\Response(
-     *     response=200,
+     *     response=201,
      *     description="Post a new client",
      *     @SWG\Schema(
      *         type="array",
@@ -84,35 +96,43 @@ class ClientController extends AController
      * )
      * @SWG\Response(
      *     response=404,
-     *     description="Returned when ressource is not found"
+     *     description="Ressource is not found"
      * )
      * @Route("/client", name="client_create", methods={"POST"})
      * @param Request $request
      * @return Response
+     * @throws BadJsonException|BadFormException
      */
     public function createAction(Request $request): Response
     {
-        $book = new Client();
+        $user = $this->getUser();
 
-        $form = $this->createForm(ClientFormType::class, $book);
+        $client = new Client();
+
+        $form = $this->createForm(ClientFormType::class, $client);
 
         $requestData = json_decode($request->getContent(), true);
+
+        if (!$requestData) {
+            throw new BadJsonException();
+        }
 
         $form->submit($requestData);
 
         if (!($form->isSubmitted() && $form->isValid())) {
-            return new JsonResponse([], 400);
+            throw new BadFormException($form);
         }
 
-        persist($book);
+        $client->setUser($user);
+        $this->entityManager->persist($client);
         $this->entityManager->flush();
 
         return $this->json(
-            $book,
-            200,
+            $client,
+            201,
             [],
             [
-                'groups' => ['show', 'list']
+                'groups' => ['client_show', 'client_list']
             ]
         );
     }
@@ -129,27 +149,26 @@ class ClientController extends AController
      * )
      * @SWG\Response(
      *     response=404,
-     *     description="Returned when ressource is not found"
+     *     description="Ressource is not found"
      * )
-     * @Route("/client", name="clients_list", methods={"GET"})
+     * @Route("/client", name="client_list", methods={"GET"})
      * @param Request $request
+     * @param UserInterface $user
      * @return Response
      * @throws Exception
      */
-    public function listAction(Request $request)
+    public function listAction(Request $request, UserInterface $user)
     {
         $page = $request->query->get('page', 1);
         $limit = $request->query->get('limit', self::LIMIT);
-
-        $paginator = $this->clientRepository->findAllPaginated($page, self::LIMIT);
-
+        $paginator = $this->clientRepository->findPaginatedBy(['user'=>$user], $page, $limit);
         $paginatedCollection = new PaginatedRepresentation(
             new CollectionRepresentation($paginator->getIterator()),
-            'clients_list',
+            'client_list',
             array(),
             $page,
             $limit,
-            count($paginator)/self::LIMIT,
+            count($paginator) / self::LIMIT,
             'page',
             'limit',
             false,
@@ -161,7 +180,7 @@ class ClientController extends AController
             200,
             [],
             [
-                'groups' => ['list']
+                'groups' => ['client_list']
             ]
         );
     }
@@ -169,17 +188,12 @@ class ClientController extends AController
     /**
      * @SWG\Tag(name="Client")
      * @SWG\Response(
-     *     response=200,
-     *     description="Delete a client",
-     *     @SWG\Schema(
-     *         type="array",
-     *         example={"id": "id"},
-     *         @SWG\Items(ref=@Model(type=Client::class, groups={"full"}))
-     *     )
+     *     response=204,
+     *     description="Client deleted"
      * )
      * @SWG\Response(
      *     response=404,
-     *     description="Returned when ressource is not found"
+     *     description="Ressource is not found"
      * )
      * @Route("/client/{id}", name="client_delete", methods={"DELETE"})
      * @param Client $client
@@ -190,7 +204,7 @@ class ClientController extends AController
         $this->entityManager->remove($client);
         $this->entityManager->flush();
 
-        return new JsonResponse();
+        return new JsonResponse(null, 204);
     }
 
     /**
@@ -206,12 +220,13 @@ class ClientController extends AController
      * )
      * @SWG\Response(
      *     response=404,
-     *     description="Returned when ressource is not found"
+     *     description="Ressource is not found"
      * )
      * @Route("/client/{id}", name="client_update", methods={"PUT"})
      * @param Request $request
      * @param Client $client
      * @return Response
+     * @throws BadJsonException|BadFormException
      */
     public function updateAction(Request $request, Client $client): Response
     {
@@ -219,10 +234,14 @@ class ClientController extends AController
 
         $requestData = json_decode($request->getContent(), true);
 
+        if (!$requestData) {
+            throw new BadJsonException();
+        }
+
         $form->submit($requestData);
 
         if (!($form->isSubmitted() && $form->isValid())) {
-            return new JsonResponse([], 400);
+            throw new BadFormException($form);
         }
 
         $this->entityManager->flush();
@@ -232,7 +251,7 @@ class ClientController extends AController
             200,
             [],
             [
-                'groups' => ['show', 'list']
+                'groups' => ['client_show', 'client_list']
             ]
         );
     }
